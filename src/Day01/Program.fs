@@ -31,17 +31,26 @@ let findTripletWithSum sum ints =
     ints
     |> Array.tryPick tryPickValidTriplet
 
+let printResults result =
+    printfn " Result: %A" result
+
+    match result with
+    | Some values ->
+        printfn " Sum: %i" <| List.reduce (+) values
+        printfn " Product: %i" <| List.reduce (*) values
+    | None -> ()
+
 [<EntryPoint>]
 let main _ =
     let ints = loadIntegers "./input.txt"
     printfn "Loaded %i numbers" ints.Length
 
-    let result = findTripletWithSum 2020 ints
-    printfn "Result: %A" result
+    printfn "Pairs:"
+    printResults <| findPairWithSum 2020 ints
 
-    match result with
-    | Some values ->
-        printfn "Sum: %i" <| List.reduce (+) values
-        printfn "Product: %i" <| List.reduce (*) values
-    | None -> ()
+    printfn ""
+
+    printfn "Triplets:"
+    printResults <| findTripletWithSum 2020 ints
+
     0

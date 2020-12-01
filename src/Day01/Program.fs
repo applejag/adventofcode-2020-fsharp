@@ -1,13 +1,27 @@
-// Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
+open System.IO
 
-open System
+let loadIntegers filename =
+    File.ReadAllLines filename
+    |> Array.map int
 
-// Define a function to construct a message to print
-let from whom =
-    sprintf "from %s" whom
+let findPairWithSum sum ints =
+    let map = Set.ofArray ints
+    ints
+    |> Array.tryFind (fun i -> map |> Set.contains (sum - i))
+    |> function
+        | Some i -> Some (i, sum - i)
+        | None -> None
 
 [<EntryPoint>]
-let main argv =
-    let message = from "F#" // Call the function
-    printfn "Hello world %s" message
-    0 // return an integer exit code
+let main _ =
+    let ints = loadIntegers "./input.txt"
+    printfn "Loaded %i numbers" ints.Length
+
+    let pair = findPairWithSum 2020 ints
+    printfn "Pair: %A" pair
+
+    match pair with
+    | Some (x, y) -> printfn "Product: %i" (x * y)
+    | None -> ()
+    0
+

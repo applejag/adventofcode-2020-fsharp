@@ -13,21 +13,23 @@ let findPairWithSum sum ints =
         | None -> None
 
 let findTripletWithSum sum ints =
-    let createSetWithValueAdded skip value =
-        (value, Seq.skip skip ints |> Seq.map ((+) value) |> Set.ofSeq)
+    let createSetWithValueAdded skip n =
+        (n, Seq.skip skip ints |> Seq.map ((+) n) |> Set.ofSeq)
+
+    let chooseTriplet i intAddedToSet setWithIntAdded =
+        if intAddedToSet <> i && Set.contains (sum - i) setWithIntAdded then
+            Some [ intAddedToSet; i; sum - i - intAddedToSet ]
+        else
+            None
 
     let sets = ints |> Array.mapi createSetWithValueAdded
 
-    ints
-    |> Array.tryPick (fun i2 ->
+    let tryPickValidTriplet i =
         sets
-        |> Array.tryPick (fun (i, s) ->
-            if i <> i2 && Set.contains (sum - i2) s then
-                Some [ i; i2; sum - i2 - i ]
-            else
-                None
-        )
-    )
+        |> Array.tryPick (fun intAndAlteredSet -> chooseTriplet i <|| intAndAlteredSet)
+
+    ints
+    |> Array.tryPick tryPickValidTriplet
 
 [<EntryPoint>]
 let main _ =

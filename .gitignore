@@ -1,0 +1,11 @@
+
+# Vim
+*.swp
+
+# .NET temp files
+bin/
+obj/
+
+# Ionide (F#)
+.ionide/
+

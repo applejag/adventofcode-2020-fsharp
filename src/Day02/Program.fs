@@ -50,8 +50,15 @@ let validatePassword1 policy (pwd: Password) =
     |> Seq.length
     |> fallsWithinRange policy.Min policy.Max
 
-let validatePassword2 policy pwd =
-    true
+let xor a b = (a || b) && not (a && b)
+
+let validatePassword2 policy (pwd: Password) =
+    let pwdArr = pwd.ToCharArray()
+    let hasCharAt pos =
+        // Doing -1 because Min & Max references first as 1
+        Array.tryItem (pos - 1) pwdArr = Some policy.Char
+
+    xor (hasCharAt policy.Min) (hasCharAt policy.Max)
 
 [<EntryPoint>]
 let main _ =

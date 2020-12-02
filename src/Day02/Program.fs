@@ -14,14 +14,10 @@ type Policy = {
 let fallsWithinRange min max num =
     num >= min && num <= max
 
-let validatePassword policy (pwd: Password) =
-    pwd
-    |> Seq.filter ((=) policy.Char)
-    |> Seq.length
-    |> fallsWithinRange policy.Min policy.Max
-
-type PolicydPassword(policy, password) =
-    member _.IsValid: bool = validatePassword policy password
+type PolicydPassword = {
+    Policy: Policy
+    Password: Password
+}
 
 let pwdRegex = Regex(@"(\d+)-(\d+) (\w): (.*)", RegexOptions.Compiled)
 
@@ -34,17 +30,40 @@ let parsePassword line =
             Min = int m.Groups.[1].Value
             Max = int m.Groups.[2].Value
         }
-        Some <| PolicydPassword(policy, pwd)
+        Some <| { Policy = policy; Password = pwd }
     else
         None
 
-let readPasswords filename =
+let readLines filename =
     File.ReadAllLines filename
-    |> Array.Parallel.choose parsePassword
+
+let printResult (result: PolicydPassword[]) validator =
+    result
+    |> Array.Parallel.map (fun p -> validator p.Policy p.Password)
+    |> Seq.filter id
+    |> Seq.length
+    |> printfn " Found %i valid passwords"
+
+let validatePassword1 policy (pwd: Password) =
+    pwd
+    |> Seq.filter ((=) policy.Char)
+    |> Seq.length
+    |> fallsWithinRange policy.Min policy.Max
+
+let validatePassword2 policy pwd =
+    true
 
 [<EntryPoint>]
-let main argv =
-    let pwds = readPasswords "./input.txt"
+let main _ =
+    let pwds = readLines "./input.txt" |> Array.Parallel.choose parsePassword
     printfn "Found %i passwords" pwds.Length
-    printfn "Found %i valid passwords" (pwds |> Seq.filter (fun pwd -> pwd.IsValid) |> Seq.length)
+
+    printfn ""
+    printfn "Part 1:"
+    printResult pwds validatePassword1
+
+    printfn ""
+    printfn "Part 2:"
+    printResult pwds validatePassword2
+
     0 // return an integer exit code

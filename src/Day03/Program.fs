@@ -22,15 +22,15 @@ type Map =
     }
     static member GetNodeAt pos grid =
         let i1 = pos.Left % (Array2D.length1 grid)
-        let i2 = pos.Top % (Array2D.length2 grid)
-        grid.[i1, i2]
+        grid.[i1, pos.Top]
 
     member this.CurrentNode =
         Map.GetNodeAt this.Position this.Grid
 
     member this.IsOutOfBounds =
-        this.Position.Top >= (Array2D.length2 this.Grid)
-        || this.Position.Top < 0
+        this.Position.Top < 0
+        || this.Position.Top >= (Array2D.length2 this.Grid)
+        || this.Position.Left < 0
 
     member this.WithMove dx dy =
         { this with Position = move dx dy this.Position }

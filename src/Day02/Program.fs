@@ -1,5 +1,3 @@
-// Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
-
 open System.IO
 open System.Text.RegularExpressions
 
@@ -73,4 +71,4 @@ let main _ =
     printfn "Part 2:"
     printResult pwds validatePassword2
 
-    0 // return an integer exit code
+    0

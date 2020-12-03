@@ -65,6 +65,20 @@ let walkTilOutOfBounds dx dy (map: Map) =
 let seqTapi action source =
     Seq.mapi (fun i v -> action i v; v) source
 
+let tap f v = f v; v
+
+let traverseAndCountTrees dx dy map =
+    walkTilOutOfBounds dx dy map
+    //|> seqTapi (fun i (pos, node) -> printfn " i=%-3i  left=%-3i  right=%-3i  node=%A" i pos.Left pos.Top node)
+    |> Seq.map snd
+    |> Seq.filter ((=) Tree)
+    |> Seq.length
+
+let traverseAndPrintResult dx dy map =
+    printf "Traversing with right %i & down %i... " dx dy
+    traverseAndCountTrees dx dy map
+    |> tap (printfn "Came across %i trees")
+
 [<EntryPoint>]
 let main _ =
     let lines = readLines "./input.txt"
@@ -76,16 +90,14 @@ let main _ =
 
     printfn "Parsed %ix%i grid" (Array2D.length1 grid) (Array2D.length2 grid)
 
-    printfn "Traversing with dx=3 dy=1"
-    let treeCount =
-        walkTilOutOfBounds 3 1 map
-        |> seqTapi (fun i (pos, node) -> printfn " i=%-3i  left=%-3i  right=%-3i  node=%A" i pos.Left pos.Top node)
-        |> Seq.map snd
-        |> Seq.filter ((=) Tree)
-        |> Seq.length
-
-    printfn ""
-    printfn "Came across %i trees" treeCount
+    [
+        traverseAndPrintResult 1 1 map
+        traverseAndPrintResult 3 1 map // part 1
+        traverseAndPrintResult 5 1 map
+        traverseAndPrintResult 7 1 map
+        traverseAndPrintResult 1 2 map
+    ] |> List.reduce (*)
+    |> printfn "Product of all tree counts: %i"
 
     0
 

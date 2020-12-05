@@ -27,13 +27,11 @@ let parseLine line =
     )
     |> Array.ofSeq
 
-(*
- * Example:
-     * 0 7
-     * 0 3
-     * 0 1
-     * 0 0
- *)
+/// Example:
+///   * 0 7
+///   * 0 3
+///   * 0 1
+///   * 0 0
 let takeFirstHalf min max =
     let range = max - min + 1
     if range <= 1 then
@@ -41,13 +39,11 @@ let takeFirstHalf min max =
     else
         (min, max - range / 2)
 
-(*
- * Example:
-     * 0 7
-     * 4 7
-     * 6 7
-     * 7 7
- *)
+/// Example:
+///   * 0 7
+///   * 4 7
+///   * 6 7
+///   * 7 7
 let takeSecondHalf min max =
     let range = max - min + 1
     if range <= 1 then
@@ -95,8 +91,8 @@ let printOccupiedSeats seatIds =
 
     printfn ""
 
-let missingFromSet _set element =
-    not (Set.contains element _set)
+let missingFromSet set element =
+    not (Set.contains element set)
 
 [<EntryPoint>]
 let main _ =

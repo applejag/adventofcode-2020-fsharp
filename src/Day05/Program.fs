@@ -73,21 +73,18 @@ let calculateSeatPos dirs =
         | SinglePoint point -> Ok point
         | rect -> Error (sprintf "Dirs did not resolve to a single point: %A" rect)
 
-let calculateSeadId = function
+let calculateSeatId = function
     | x, y -> x + y * 8
 
-let resultToOption = function
-    | Ok v -> Some v
-    | Error _ -> None
-
-let printSeats seatIds =
+let printOccupiedSeats seatIds =
     let setOfSeatIds = Set.ofArray seatIds
-    let highestSeatId = setOfSeatIds.MaximumElement
 
-    seq { 0..highestSeatId }
+    printfn "ROW | PID RANGE | SEATS"
+    printf  "--------------------------"
+    seq { 0..(7+127*8) }
     |> Seq.iter (fun seatId ->
         if seatId % 8 = 0 then
-            printf "\n%3i: " (seatId / 8)
+            printf "\n%3i | %04i-%04i | " (seatId / 8) seatId (seatId + 7)
 
         let c =
             match Set.contains seatId setOfSeatIds with
@@ -97,6 +94,9 @@ let printSeats seatIds =
     )
 
     printfn ""
+
+let missingFromSet _set element =
+    not (Set.contains element _set)
 
 [<EntryPoint>]
 let main _ =
@@ -114,9 +114,12 @@ let main _ =
         )
 
     printfn "Found %i points from all seats definitions" seats.Length
-    let seatIds = seats |> Array.Parallel.map calculateSeadId
+    printfn ""
+
+    let seatIds = seats |> Array.Parallel.map calculateSeatId
     let highestSeatId = Array.max seatIds
-    printfn "Highest sead ID: %i" highestSeatId
+    printfn "Part 1:"
+    printfn " Highest sead ID: %i" highestSeatId
 
     let setOfSeatIds = Set.ofArray seatIds
     let lowestSeatId = Array.min seatIds
@@ -124,13 +127,11 @@ let main _ =
     printfn ""
     printfn "Part 2:"
     seq { lowestSeatId..highestSeatId }
-    |> Seq.choose (fun seatId ->
-        if Set.contains seatId setOfSeatIds then
-            None
-        else
-            Some seatId
-    )
+    |> Seq.filter (missingFromSet setOfSeatIds)
     |> Seq.iter (printfn " Unoccupied seat ID: %i")
-    printfn "Done."
+    printfn ""
+
+    printfn "(For visualization, here's all the seats:)"
+    printOccupiedSeats seatIds
 
     0

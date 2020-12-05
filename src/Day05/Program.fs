@@ -79,12 +79,12 @@ let calculateSeatId = function
 let printOccupiedSeats seatIds =
     let setOfSeatIds = Set.ofArray seatIds
 
-    printfn "ROW | PID RANGE | SEATS"
-    printf  "--------------------------"
+    printfn "ROW | PID RANGE   | SEATS"
+    printf  "----------------------------"
     seq { 0..(7+127*8) }
     |> Seq.iter (fun seatId ->
         if seatId % 8 = 0 then
-            printf "\n%3i | %04i-%04i | " (seatId / 8) seatId (seatId + 7)
+            printf "\n%3i | 0x%03x-0x%03x | " (seatId / 8) seatId (seatId + 7)
 
         let c =
             match Set.contains seatId setOfSeatIds with

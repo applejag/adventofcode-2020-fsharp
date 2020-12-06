@@ -14,7 +14,16 @@ let foldListToSet initState folder charsList =
     |> List.map Set
     |> List.fold folder initState
 
+let foldGroupsToSets initState folder groups =
+    groups
+    |> Array.Parallel.map (foldListToSet initState folder)
+
 let sumSetCounts s = Array.sumBy Set.count s
+
+let sumFoldedGroups initState folder groups =
+    groups
+    |> foldGroupsToSets initState folder
+    |> sumSetCounts
 
 [<EntryPoint>]
 let main _ =
@@ -24,13 +33,11 @@ let main _ =
     let groups = splitIntoGroups lines |> Array.ofList
     printfn "Found %i groups" groups.Length
 
-    let unionAnswers = groups |> Array.map (foldListToSet Set.empty Set.union)
-    let sumOfUnion = unionAnswers |> sumSetCounts
+    let sumOfUnion = groups |> sumFoldedGroups Set.empty Set.union
     printfn "Sum of union answers per group: %i" sumOfUnion
 
-    let allQuestions = unionAnswers |> Array.reduce Set.union
-    let intersectAnswers = groups |> Array.map (foldListToSet allQuestions Set.intersect)
-    let sumOfIntersect = intersectAnswers |> sumSetCounts
+    let allQuestions = set { 'a'..'z' }
+    let sumOfIntersect = groups |> sumFoldedGroups allQuestions Set.intersect
     printfn "Sum of intersect answers per group: %i" sumOfIntersect
 
     0

@@ -36,34 +36,33 @@ let calcParentalMappings rules =
     ) Map.empty
 
 let findBagsThatEventuallyContains soughtColor parentalMap =
-    let rec find map depth col =
-        (* These `printfn` calls will draw a tree structure of the findings *)
-        //printfn "%s%s" (System.String(' ', depth*2)) col
-        let x = match Map.tryFind col map with
-                | None -> Set [col]
-                | Some bags ->
-                    bags
-                    |> Seq.map (find map (depth+1))
-                    |> Seq.reduce Set.union
-                    |> Set.add col
-        //printfn "%s| %i" (System.String(' ', depth*2)) x.Count
-        x
+    let rec find map col =
+        match Map.tryFind col map with
+        | None -> Set [col]
+        | Some bags ->
+            bags
+            |> Seq.map (find map)
+            |> Seq.reduce Set.union
+            |> Set.add col
 
-    find parentalMap 1 soughtColor
+    find parentalMap soughtColor
     |> Set.remove soughtColor
 
 let sumBagsDeep bagColor rules =
-    let map = rules |> Array.map (fun r -> (r.BagColor, r.Holds |> Map.toSeq)) |> Map.ofArray
-    let rec flattenBags col mult =
+    let map =
+        rules
+        |> Array.Parallel.map (fun r -> (r.BagColor, r.Holds |> Map.toSeq))
+        |> Map.ofArray
+    let rec flattenBagSums col mult =
         seq {
             match Map.tryFind col map with
             | None -> ()
             | Some holdings ->
                 yield! (holdings |> Seq.map (snd >> (*) mult))
                 for (innerCol, count) in holdings do
-                    yield! flattenBags innerCol (count * mult)
+                    yield! flattenBagSums innerCol (count * mult)
         }
-    flattenBags bagColor 1
+    flattenBagSums bagColor 1
     |> Seq.sum
 
 [<EntryPoint>]

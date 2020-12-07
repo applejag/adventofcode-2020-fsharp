@@ -52,6 +52,20 @@ let findBagsThatEventuallyContains soughtColor parentalMap =
     find parentalMap 1 soughtColor
     |> Set.remove soughtColor
 
+let sumBagsDeep bagColor rules =
+    let map = rules |> Array.map (fun r -> (r.BagColor, r.Holds |> Map.toSeq)) |> Map.ofArray
+    let rec flattenBags col mult =
+        seq {
+            match Map.tryFind col map with
+            | None -> ()
+            | Some holdings ->
+                yield! (holdings |> Seq.map (snd >> (*) mult))
+                for (innerCol, count) in holdings do
+                    yield! flattenBags innerCol (count * mult)
+        }
+    flattenBags bagColor 1
+    |> Seq.sum
+
 [<EntryPoint>]
 let main _ =
     let lines = readLines "./input.txt"
@@ -66,10 +80,16 @@ let main _ =
 
     let soughtColor = "shiny gold"
     let bags = findBagsThatEventuallyContains soughtColor parentalMap
-    printfn "Found %i bags that eventually contain '%s':" bags.Count soughtColor
+    printfn ""
+    printfn "Part 1:"
+    printfn " Number of bag colors that eventually contain '%s': %i" soughtColor bags.Count
 
     //let firstWordRegex = Regex(@"^\w+", RegexOptions.Compiled)
     //bags
     //|> Seq.groupBy (fun col -> (firstWordRegex.Match col).Value)
     //|> Seq.iter (fun (g, cols) -> printfn "%s %i:\n  %s" g (Seq.length cols) <| String.concat ", " cols)
+
+    printfn ""
+    printfn "Part 2:"
+    printfn " Deep number of bags needed for '%s': %i" soughtColor (sumBagsDeep soughtColor rules)
     0

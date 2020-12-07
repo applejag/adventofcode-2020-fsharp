@@ -5,7 +5,7 @@ let readLines filename =
     File.ReadAllLines filename
 
 /// Example: dim tan bags contain 3 shiny teal bags, 5 bright white bags, 4 striped bronze bags.
-/// => { BagColor = "dim tan"; Holds = map [("shiny teal", 3); ("bright white",5); ("striped bronze"; 4)]
+/// => { BagColor = "dim tan"; Holds = map [("shiny teal", 3); ("bright white", 5); ("striped bronze", 4)]
 type LuggageRule = {
     BagColor: string
     Holds: Map<string, int>

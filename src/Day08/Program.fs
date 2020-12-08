@@ -5,7 +5,7 @@ let readLines filename =
     File.ReadAllLines filename
 
 type Operation =
-    | Nop
+    | Nop of int
     | Acc of int
     | Jmp of int
 
@@ -16,7 +16,7 @@ let splitOp (line: string) =
 
 let parseOp line =
     match splitOp line with
-    | "nop", _ -> Nop
+    | "nop", nop -> Nop (int nop)
     | "acc", acc -> Acc (int acc)
     | "jmp", jmp -> Jmp (int jmp)
     | _ -> failwithf "Unable to parse op: '%s'" line
@@ -30,7 +30,7 @@ type ProgramState(pc: int, acc: int) =
 
 let applyOp (state: ProgramState) op =
     match op with
-    | Nop -> ProgramState(state.Pc + 1, state.Acc)
+    | Nop _ -> ProgramState(state.Pc + 1, state.Acc)
     | Acc acc -> ProgramState(state.Pc + 1, state.Acc + acc)
     | Jmp jmp -> ProgramState(state.Pc + jmp, state.Acc)
 
@@ -42,23 +42,27 @@ let walkProgram ops =
         |> Option.map (applyOp state >> pair)
     ) ProgramState.Empty
 
+type Continuation<'State> =
+    | Continue
+    | Next of 'State
+
 module Seq =
     let foldFind chooser (state: 'State) (source: seq<'T>) =
         let mutable s = state
         source
         |> Seq.tryPick (fun item ->
             match chooser s item with
-            | None -> Some item
-            | Some state -> s <- state; None
+            | Continue -> Some item
+            | Next state -> s <- state; None
         )
 
 let stopWhenLoopDetected (states: seq<ProgramState>) =
     states
     |> Seq.foldFind (fun pcs state ->
         if Set.contains state.Pc pcs then
-            None
+            Continue
         else
-            Some (Set.add state.Pc pcs)
+            Next (Set.add state.Pc pcs)
     ) Set.empty
 
 [<EntryPoint>]

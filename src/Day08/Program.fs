@@ -73,27 +73,30 @@ let stopWhenLoopDetected states =
     | Running -> lastState, RanToCompletetion
     | _ -> lastState, stoppedReason
 
-let withOneOpChanged replaceOp withOp ops =
+let withOneOpChanged replaceOp withOp (ops: (OpCode * int)[]) =
     ops
     |> Seq.indexed
     |> Seq.filter (fun (_, (op, _)) -> op = replaceOp)
-    |> Seq.map (fun (i, (_, opi)) ->
-        let alteredOps = Array.copy ops
-        alteredOps.[i] <- withOp, opi
-        i, alteredOps
+    |> Seq.map (fun (opIndex, (_, n)) ->
+        opIndex, Seq.init ops.Length (fun i ->
+            if i = opIndex then
+                withOp, n
+            else
+                ops.[i]
+        )
     )
 
 let runAndPrintWithOneOpChanged replaceOp withOp ops =
+    let programs = ops |> withOneOpChanged replaceOp withOp |> Array.ofSeq
     let completions =
-        ops
-        |> withOneOpChanged replaceOp withOp
-        |> Seq.map (fun (i, ops) ->
-            let finalState, stoppedReason = walkProgram ops |> stopWhenLoopDetected
+        programs
+        |> Array.map (fun (i, opsSeq) ->
+            let finalState, stoppedReason = opsSeq |> Array.ofSeq |> walkProgram |> stopWhenLoopDetected
             (i, finalState, stoppedReason)
         )
         |> Seq.filter (fun (_, _, stoppedReason) -> stoppedReason = RanToCompletetion)
         |> Array.ofSeq
-    printfn " With %A->%A, %i attempts succeeded." replaceOp withOp completions.Length
+    printfn " With %A->%A, %i/%i attempts succeeded." replaceOp withOp completions.Length programs.Length
     completions
     |> Array.iter (fun (i, finalState, _) ->
         printfn "  ops.[%i] <- %A succeeded with ending state: %A" i withOp finalState

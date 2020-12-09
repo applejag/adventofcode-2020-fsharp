@@ -17,6 +17,16 @@ module List =
         | [] -> []
         | head :: tail -> List.collect (fun v -> [head, v]) tail @ permutationPairs tail
 
+    /// In: [1; 2; 3]
+    /// Out: seq { [1; 2; 3]; [2; 3]; [3] }
+    let toSeqOfTails source =
+        source
+        |> Seq.unfold (fun remianingList ->
+            match remianingList with
+            | [] -> None
+            | _ :: tail -> Some (remianingList, tail)
+        )
+
 let containsSumOfTwoUniqueInSpan expectedSum arr =
     List.ofArray arr
     |> List.permutationPairs
@@ -28,16 +38,57 @@ let validateIntAtIndex (ints: int64[]) index integer =
     else
         containsSumOfTwoUniqueInSpan integer ints.[index-25..index-1]
 
+module Seq =
+    // Taken from ../Day08/Program.fs
+    let foldWhileSome folder state source =
+        source
+        |> Seq.scan (fun prevState item ->
+            folder (Option.get prevState) item
+        ) (Some state)
+        |> Seq.takeWhile Option.isSome
+        |> Seq.map Option.get
+        |> Seq.last
+
+let inline sumWhileBelow maxSum ints =
+    ints
+    |> Seq.foldWhileSome (fun (intsSet, sum) i ->
+        if i + sum > maxSum then
+            None
+        else
+            Some (Set.add i intsSet, sum + i)
+    ) (Set.empty, LanguagePrimitives.GenericZero)
+
+let findSetWithSum maxSum ints =
+    ints
+    |> List.ofArray
+    |> List.toSeqOfTails
+    |> Seq.map (sumWhileBelow maxSum)
+    |> Seq.find (snd >> ((=) maxSum))
+
 [<EntryPoint>]
 let main _ =
     let lines = readLines "./input.txt"
     printfn "Read %i lines" lines.Length
 
     let ints = Array.map int64 lines
-    let validated = Array.Parallel.mapi (validateIntAtIndex ints) ints
 
-    let firstInvalidIndex = validated |> Array.tryFindIndex ((=) false)
-    printfn "First invalid at index: %A" firstInvalidIndex
-    printfn "First invalid integer: %A" (firstInvalidIndex |> Option.map (Array.get ints))
+    printfn ""
+    printfn "Part 1:"
+    let validated = Array.Parallel.mapi (validateIntAtIndex ints) ints
+    let firstInvalidIndex = validated |> Array.findIndex ((=) false)
+    let firstInvalidInteger = ints.[firstInvalidIndex]
+    printfn " First invalid at index: %i" firstInvalidIndex
+    printfn " First invalid integer: %i" firstInvalidInteger
+
+    printfn ""
+    printfn "Part 2:"
+    let encrWeaknessSet, sum =
+        ints.[25..]
+        |> findSetWithSum firstInvalidInteger
+    printfn " Set: %A" encrWeaknessSet
+    printfn " Sum: %i" sum
+    printfn " Min: %i" encrWeaknessSet.MinimumElement
+    printfn " Max: %i" encrWeaknessSet.MaximumElement
+    printfn " Sum(Min, Max): %i" (encrWeaknessSet.MinimumElement + encrWeaknessSet.MaximumElement)
 
     0

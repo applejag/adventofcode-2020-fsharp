@@ -85,7 +85,7 @@ let main _ =
     let encrWeaknessSet, sum =
         ints.[25..]
         |> findSetWithSum firstInvalidInteger
-    printfn " Set: %A" encrWeaknessSet
+    printfn " Set (length=%i): %A" encrWeaknessSet.Count encrWeaknessSet
     printfn " Sum: %i" sum
     printfn " Min: %i" encrWeaknessSet.MinimumElement
     printfn " Max: %i" encrWeaknessSet.MaximumElement

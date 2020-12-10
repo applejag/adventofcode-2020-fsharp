@@ -52,5 +52,6 @@ let main args =
     printfn "Part 2:"
     let paths = calcPossiblePaths joltagesSorted
     printfn " Number of possible paths: %i" paths.[highest]
+    printfn " Number of possible paths (formatted): %s" (paths.[highest].ToString "#,0")
 
     0

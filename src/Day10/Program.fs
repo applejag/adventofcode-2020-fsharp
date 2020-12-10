@@ -4,8 +4,9 @@ let readLines filename =
     File.ReadAllLines filename
 
 [<EntryPoint>]
-let main _ =
-    let lines = readLines "./input.txt"
+let main args =
+    let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
+    let lines = readLines filename
     printfn "Read %i lines" lines.Length
 
     let adapters = lines |> Array.map int

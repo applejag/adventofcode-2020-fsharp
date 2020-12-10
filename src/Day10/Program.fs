@@ -11,6 +11,31 @@ let calcAndPrintDifferences joltages =
     let numOf3Diffs = countPerDiff.[3]
     printfn " 1 diffs * 3 diffs = %i" (numOf1Diffs * numOf3Diffs)
 
+let listPossibleJoltageSources fromJoltage joltagesSet =
+    Set.ofArray [| fromJoltage-3..fromJoltage-1 |]
+    |> Set.intersect joltagesSet
+
+module Map =
+    let findMultiple keys table =
+        Seq.map (fun key -> Map.find key table) keys
+
+let addSumOfPossiblePaths joltagesSet joltagesPathsMap joltage =
+    let sum =
+        joltagesPathsMap
+        |> Map.findMultiple (listPossibleJoltageSources joltage joltagesSet)
+        |> Seq.sum
+    Map.add joltage sum joltagesPathsMap
+
+let calcPossiblePaths joltagesSorted =
+    (* Rules:
+        Joltage         Number of paths
+        0               1
+        n               sum(paths to possible joltages)
+    *)
+    joltagesSorted
+    |> Array.except [| 0 |]
+    |> Array.fold (addSumOfPossiblePaths (Set.ofArray joltagesSorted)) (Map.ofList [(0,1L)])
+
 [<EntryPoint>]
 let main args =
     let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
@@ -19,10 +44,15 @@ let main args =
 
     let adapters = lines |> Array.map int
     let highest = adapters |> Array.max
-    let joltages = adapters |> Array.append [| 0; highest + 3 |] |> Array.sort
+    let joltagesSorted = adapters |> Array.append [| 0; highest + 3 |] |> Array.sort
 
     printfn ""
     printfn "Part 1:"
-    calcAndPrintDifferences joltages
+    calcAndPrintDifferences joltagesSorted
+
+    printfn ""
+    printfn "Part 2:"
+    let paths = calcPossiblePaths joltagesSorted
+    printfn " Number of possible paths: %i" paths.[highest]
 
     0

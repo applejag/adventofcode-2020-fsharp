@@ -59,8 +59,9 @@ let validatePassword2 policy (pwd: Password) =
     xor (hasCharAt policy.Min) (hasCharAt policy.Max)
 
 [<EntryPoint>]
-let main _ =
-    let pwds = readLines "./input.txt" |> Array.Parallel.choose parsePassword
+let main args =
+    let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
+    let pwds = readLines filename |> Array.Parallel.choose parsePassword
     printfn "Found %i passwords" pwds.Length
 
     printfn ""

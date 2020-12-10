@@ -66,9 +66,10 @@ let sumBagsDeep bagColor rules =
     |> Seq.sum
 
 [<EntryPoint>]
-let main _ =
-    let lines = readLines "./input.txt"
-    printfn "Read %i lines" lines.Length
+let main args =
+    let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
+    let lines = readLines filename
+    printfn "Read %i lines from %s" lines.Length filename
 
     let rules = Array.Parallel.map parseLuggageRule lines
     printfn "Parsed rules for %i different bag colors" (rules |> Array.distinctBy (fun r -> r.BagColor) |> Array.length)

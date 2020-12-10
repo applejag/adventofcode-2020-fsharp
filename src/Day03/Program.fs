@@ -75,14 +75,15 @@ let traverseAndCountTrees dx dy map =
     |> Seq.length
 
 let traverseAndPrintResult dx dy map =
-    printf "Traversing with right %i & down %i... " dx dy
+    printf " Traversing with right %i & down %i... " dx dy
     traverseAndCountTrees dx dy map
     |> tap (printfn "Came across %i trees")
 
 [<EntryPoint>]
-let main _ =
-    let lines = readLines "./input.txt"
-    printfn "Read %i lines" lines.Length
+let main args =
+    let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
+    let lines = readLines filename
+    printfn "Read %i lines from %s" lines.Length filename
 
     let jagged = lines |> Array.map parseLine
     let grid = jaggedTo2D jagged
@@ -90,6 +91,12 @@ let main _ =
 
     printfn "Parsed %ix%i grid" (Array2D.length1 grid) (Array2D.length2 grid)
 
+    printfn ""
+    printfn "Part 1:"
+    traverseAndPrintResult 3 1 map |> ignore
+
+    printfn ""
+    printfn "Part 2:"
     [
         traverseAndPrintResult 1 1 map
         traverseAndPrintResult 3 1 map // part 1

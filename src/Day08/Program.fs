@@ -103,9 +103,10 @@ let runAndPrintWithOneOpChanged replaceOp withOp ops =
     )
 
 [<EntryPoint>]
-let main _ =
-    let lines = readLines "./input.txt"
-    printfn "Read %i lines" lines.Length
+let main args =
+    let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
+    let lines = readLines filename
+    printfn "Read %i lines from %s" lines.Length filename
 
     let ops = Array.Parallel.map parseOp lines
     printfn "Parsed %i ops: %A" ops.Length ops

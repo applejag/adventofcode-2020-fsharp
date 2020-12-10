@@ -1,8 +1,7 @@
 open System.IO
 
-let loadIntegers filename =
+let readLines filename =
     File.ReadAllLines filename
-    |> Array.map int
 
 let findPairWithSum sum ints =
     let intsSet = Set.ofArray ints
@@ -41,16 +40,20 @@ let printResults result =
     | None -> ()
 
 [<EntryPoint>]
-let main _ =
-    let ints = loadIntegers "./input.txt"
-    printfn "Loaded %i numbers" ints.Length
+let main args =
+    let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
+    let lines = readLines filename
+    printfn "Read %i lines from %s" lines.Length filename
+    let ints = lines |> Array.map int
 
-    printfn "Pairs:"
+    printfn ""
+    printfn "Part 1:"
+    printfn " Pairs:"
     printResults <| findPairWithSum 2020 ints
 
     printfn ""
-
-    printfn "Triplets:"
+    printfn "Part 2:"
+    printfn " Triplets:"
     printResults <| findTripletWithSum 2020 ints
 
     0

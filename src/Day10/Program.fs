@@ -38,7 +38,7 @@ let calcPossiblePaths joltagesSorted =
 let main args =
     let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
     let lines = readLines filename
-    printfn "Read %i lines" lines.Length
+    printfn "Read %i lines from %s" lines.Length filename
 
     let adapters = lines |> Array.map int
     let highest = adapters |> Array.max

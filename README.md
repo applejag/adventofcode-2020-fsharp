@@ -12,6 +12,10 @@ This repo contains my attempt at Advent of Code 2020
 
   ```sh
   $ cd src/Day01
-  $ dotnet run
-  ```
 
+  # To run it on "input.txt" in current directory
+  $ dotnet run
+
+  # To run it on some other file, example:
+  $ dotnet run -- sample.txt
+  ```

@@ -95,9 +95,10 @@ let missingFromSet set element =
     not (Set.contains element set)
 
 [<EntryPoint>]
-let main _ =
-    let lines = readLines "./input.txt"
-    printfn "Read %i lines" lines.Length
+let main args =
+    let filename = Array.tryItem 0 args |> Option.defaultValue "./input.txt"
+    let lines = readLines filename
+    printfn "Read %i lines from %s" lines.Length filename
 
     let seats =
         lines

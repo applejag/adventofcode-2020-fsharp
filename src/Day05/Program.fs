@@ -123,11 +123,14 @@ let main args =
 
     printfn ""
     printfn "Part 2:"
-    seq { lowestSeatId..highestSeatId }
-    |> Seq.filter (missingFromSet setOfSeatIds)
-    |> Seq.iter (printfn " Unoccupied seat ID: %i")
-    printfn ""
+    let unoccupied =
+        seq { lowestSeatId..highestSeatId }
+        |> Seq.filter (missingFromSet setOfSeatIds)
+        |> List.ofSeq
+    printfn " Unoccupied seats: %i" unoccupied.Length
+    printfn " Unoccupied seat IDs: %A" unoccupied
 
+    printfn ""
     printfn "(For visualization, here's all the seats:)"
     printOccupiedSeats seatIds
 

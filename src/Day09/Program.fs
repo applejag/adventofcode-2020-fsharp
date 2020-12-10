@@ -32,11 +32,11 @@ let containsSumOfTwoUniqueInSpan expectedSum arr =
     |> List.permutationPairs
     |> List.exists (fun (a, b) -> a + b = expectedSum)
 
-let validateIntAtIndex (ints: int64[]) index integer =
-    if index < 25 then
+let validateIntAtIndex (ints: int64[]) preamble index integer =
+    if index < preamble then
         true
     else
-        containsSumOfTwoUniqueInSpan integer ints.[index-25..index-1]
+        containsSumOfTwoUniqueInSpan integer ints.[index-preamble..index-1]
 
 module Seq =
     // Taken from ../Day08/Program.fs
@@ -71,11 +71,14 @@ let main args =
     let lines = readLines filename
     printfn "Read %i lines from %s" lines.Length filename
 
+    let preamble = Array.tryItem 1 args |> Option.map int |> Option.defaultValue 25
+    printfn "Using preamble: %i" preamble
+
     let ints = Array.map int64 lines
 
     printfn ""
     printfn "Part 1:"
-    let validated = Array.Parallel.mapi (validateIntAtIndex ints) ints
+    let validated = Array.Parallel.mapi (validateIntAtIndex ints preamble) ints
     let firstInvalidIndex = validated |> Array.findIndex ((=) false)
     let firstInvalidInteger = ints.[firstInvalidIndex]
     printfn " First invalid at index: %i" firstInvalidIndex
@@ -83,9 +86,7 @@ let main args =
 
     printfn ""
     printfn "Part 2:"
-    let encrWeaknessSet, sum =
-        ints.[25..]
-        |> findSetWithSum firstInvalidInteger
+    let encrWeaknessSet, sum = findSetWithSum firstInvalidInteger ints
     printfn " Set (length=%i): %A" encrWeaknessSet.Count encrWeaknessSet
     printfn " Sum: %i" sum
     printfn " Min: %i" encrWeaknessSet.MinimumElement

@@ -7,9 +7,7 @@ let calcAndPrintDifferences joltages =
     let differences = joltages |> Array.pairwise |> Array.map (fun (a, b) -> b - a)
     let countPerDiff = differences |> Array.countBy id |> Map.ofArray
     printfn " Differences: %A" countPerDiff
-    let numOf1Diffs = countPerDiff.[1]
-    let numOf3Diffs = countPerDiff.[3]
-    printfn " 1 diffs * 3 diffs = %i" (numOf1Diffs * numOf3Diffs)
+    printfn " 1 diffs * 3 diffs = %i" (countPerDiff.[1] * countPerDiff.[3])
 
 let listPossibleJoltageSources fromJoltage joltagesSet =
     Set.ofArray [| fromJoltage-3..fromJoltage-1 |]

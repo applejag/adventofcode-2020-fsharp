@@ -20,7 +20,7 @@ This repo contains my attempt at Advent of Code 2020
   dotnet run -- sample.txt
   ```
 
-## Adding a new solution
+## Adding a new puzzle solution
 
 There is a template project, named `DayXX`. To make a new one, you may first
 set the following environment variable:

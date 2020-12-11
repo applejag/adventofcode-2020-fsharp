@@ -11,13 +11,13 @@ This repo contains my attempt at Advent of Code 2020
   For day 1, you would run:
 
   ```sh
-  $ cd src/Day01
+  cd src/Day01
 
-  # To run it on "input.txt" in current directory
-  $ dotnet run
+  # To run it on "input.txt" in current working directory
+  dotnet run
 
   # To run it on some other file, example:
-  $ dotnet run -- sample.txt
+  dotnet run -- sample.txt
   ```
 
 ## Adding a new solution

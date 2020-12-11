@@ -67,7 +67,7 @@ let evolveUntilEquilibrium seatEvolver grid =
             Some (occupied, (occupied, evolveGrid seatEvolver g))
     ) (-1, grid)
     |> Seq.mapi (fun i count ->
-        if i >= 10000 then
+        if i >= 1000 then
             failwithf "Reached %i iterations. May be infinite loop... Aborting." i
         else
             { Iteration = i; Occupied = count }

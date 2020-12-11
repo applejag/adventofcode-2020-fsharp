@@ -79,16 +79,18 @@ let main args =
     printfn "Read %ix%i grid" (Array2D.length1 grid) (Array2D.length2 grid)
 
     printfn ""
-    Seq.unfold (fun (prevOccupied, g) ->
-        let occupied = countSeats '#' g
-        if occupied = prevOccupied then
-            None
-        else
-            let nextGrid = evolveGrid g
-            Some (occupied, (occupied, nextGrid))
-    ) (-1, grid)
-    |> Seq.iteri (fun i occupied ->
-        printfn "Iteration %3i: %5i seats occupied" i occupied
-    )
+    let lastIndex, lastOccupied =
+        Seq.unfold (fun (prevOccupied, g) ->
+            let occupied = countSeats '#' g
+            if occupied = prevOccupied then
+                None
+            else
+                let nextGrid = evolveGrid g
+                Some (occupied, (occupied, nextGrid))
+        ) (-1, grid)
+        |> Seq.indexed
+        |> Seq.last
+
+    printfn "Iteration %3i: %5i seats occupied" lastIndex lastOccupied
 
     0

@@ -50,14 +50,30 @@ let countSeats c (grid: char[,]) =
     |> Seq.filter ((=) c)
     |> Seq.length
 
-let evolveGrid grid =
-    grid
-    |> Array2D.mapi (fun x y c ->
-        match c with
-        | 'L' when countAdjasentSeats '#' x y grid = 0 -> '#'
-        | '#' when countAdjasentSeats '#' x y grid >= 4 -> 'L'
-        | _ -> c
-    )
+let evolveGrid seatEvolver grid =
+    grid |> Array2D.mapi (seatEvolver grid)
+
+type OccupiedSeats = {
+    Iteration: int
+    Count: int
+}
+
+let evolveUntilEquilibrium seatEvolver grid =
+    Seq.unfold (fun (prevOccupied, g) ->
+        let occupied = countSeats '#' g
+        if occupied = prevOccupied then
+            None
+        else
+            Some (occupied, (occupied, evolveGrid seatEvolver g))
+    ) (-1, grid)
+    |> Seq.mapi (fun i count -> { Iteration = i; Count = count })
+    |> Seq.last
+
+let evolveSeat1 grid x y c =
+    match c with
+    | 'L' when countAdjasentSeats '#' x y grid = 0 -> '#'
+    | '#' when countAdjasentSeats '#' x y grid >= 4 -> 'L'
+    | _ -> c
 
 //let printGrid grid =
 //    let w = Array2D.length1 grid
@@ -79,18 +95,10 @@ let main args =
     printfn "Read %ix%i grid" (Array2D.length1 grid) (Array2D.length2 grid)
 
     printfn ""
-    let lastIndex, lastOccupied =
-        Seq.unfold (fun (prevOccupied, g) ->
-            let occupied = countSeats '#' g
-            if occupied = prevOccupied then
-                None
-            else
-                let nextGrid = evolveGrid g
-                Some (occupied, (occupied, nextGrid))
-        ) (-1, grid)
-        |> Seq.indexed
-        |> Seq.last
+    printfn "Part 1:"
+    let equilibrium1 = evolveUntilEquilibrium evolveSeat1 grid
+    printfn " Iteration %3i: %5i seats occupied" equilibrium1.Iteration equilibrium1.Count
 
-    printfn "Iteration %3i: %5i seats occupied" lastIndex lastOccupied
-
+    printfn ""
+    printfn "Part 2:"
     0

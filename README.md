@@ -26,7 +26,14 @@ There is a template project, named `DayXX`. To make a new one, you may first
 set the following environment variable:
 
 ```sh
+# If using bash, zsh, sh, dash, ash...
 AOC_DAY=03
+
+# If using fish
+set AOC_DAY 03
+
+# If using PowerShell
+$AOC_DAY='03'
 ```
 
 Then run the following commands:

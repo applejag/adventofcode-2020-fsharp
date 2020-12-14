@@ -21,7 +21,7 @@ let main argv =
 
     let eta = int lines.[0]
     let notes = splitBusIds lines.[1]
-    let busIds = notes |> Array.filter Option.isSome |> Array.map Option.get
+    let busIds = notes |> Array.choose id
 
     printfn "Read %i notes, where %i are integers" notes.Length busIds.Length
     printfn "Estimated time of arrival after %i min" eta
